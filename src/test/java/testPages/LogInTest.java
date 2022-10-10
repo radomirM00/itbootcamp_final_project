@@ -1,62 +1,32 @@
 package testPages;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import pages.HomePage;
-import pages.LogInPage;
-
-import java.time.Duration;
-
-public class LogInTest {
-   private HomePage homePage;
-   private LogInPage logInPage;
-    private WebDriver driver;
-    private WebDriverWait driverWait;
-
-    @BeforeClass
-    public void setup(){
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
-        driver = new ChromeDriver();
-        driver.get("https://vue-demo.daniel-avellaneda.com/");
-        driver.manage().window().maximize();
-        driverWait = new WebDriverWait(driver,Duration.ofSeconds(20));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-        homePage = new HomePage(driver,driverWait);
-        logInPage = new LogInPage(driver,driverWait);
-    }
-
-    @Test
+public class LogInTest extends BaseTest{
+    @Test(priority = 1)
     public void verifyLogInPageUrl(){
         homePage.goToLogInPage();
         String expectedUrl = "https://vue-demo.daniel-avellaneda.com/login";
         String actualUrl = driver.getCurrentUrl();
         Assert.assertEquals(actualUrl,expectedUrl);
     }
-
-    @Test
+    @Test(priority = 2)
     public void verifyEmailInputType(){
         homePage.goToLogInPage();
         String actualEmail = logInPage.checkEmailInputType();
         String expectedEmail = "email";
         Assert.assertEquals(actualEmail,expectedEmail);
     }
-
-    @Test
+    @Test(priority = 3)
     public void verifyPasswordInputType(){
         homePage.goToLogInPage();
         String actualPass = logInPage.checkPasswordInputType();
         String expectedPass = "password";
         Assert.assertEquals(actualPass,expectedPass);
     }
-
-    @Test
+    @Test(priority = 4)
     public void verifylogIn(){
         homePage.goToLogInPage();
         logInPage.logIn("admin@admin.com", "12345");
@@ -65,14 +35,22 @@ public class LogInTest {
         String actualUrl = driver.getCurrentUrl();
         Assert.assertEquals(actualUrl,expectedUrl);
     }
-
-    @Test
-    public void invalidUserLoginTest(){
+   @Test(priority = 6)
+    public void validateUserDoesNotExistErrorMsg(){
         homePage.goToLogInPage();
         logInPage.logIn("test@test.com","12345");
         String expectedText = "User does not exists";
         WebElement actual = driver.findElement(By.xpath("//*[@id=\"app\"]/div[1]/main/div/div[2]/div/div/div[4]/div/div/div/div/div[1]/ul/li"));
         String actualText = actual.getText();
         Assert.assertEquals(actualText,expectedText);
+        Assert.assertTrue(driver.getCurrentUrl().contains("/login"));
+    }
+    @Test(priority = 5)
+    public void verifyLogout(){
+        Assert.assertTrue(isVisible(getLogOutBtn()));
+        logOut();
+        Assert.assertTrue(driver.getCurrentUrl().contains("/login"));
+        driver.get("https://vue-demo.daniel-avellaneda.com/home");
+        Assert.assertTrue(driver.getCurrentUrl().contains("/login"));
     }
 }
